@@ -57,3 +57,28 @@ fn brighten_channel(value: u8, steps: u8) -> u8 {
         new_val as u8
     }
 }
+
+fn new_buffer(img: &DynamicImage) -> image::RgbImage {
+    let (width, height) = img.dimensions();
+    image::RgbImage::new(width, height)
+}
+
+pub fn invert(img: &DynamicImage) -> image::RgbImage {
+    let mut buffer = new_buffer(&img);
+
+    for pixel in img.pixels() {
+        match pixel {
+            (x, y, pixel) => buffer.put_pixel(x, y, Rgb {data: [
+                invert_channel(*pixel.data.get(0).unwrap()),
+                invert_channel(*pixel.data.get(1).unwrap()),
+                invert_channel(*pixel.data.get(2).unwrap())
+            ]})
+        }
+    }
+
+    buffer
+}
+
+fn invert_channel(value: u8) -> u8 {
+    (!0 as u8) - value
+}
