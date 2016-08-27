@@ -1,19 +1,17 @@
 extern crate image;
 
-use image::{GenericImage, DynamicImage, ImageBuffer, Rgb};
+use image::{GenericImage, DynamicImage, Rgb};
 
 pub fn contrast(img: &DynamicImage, factor: f32) -> image::RgbImage {
-    let (width, height) = img.dimensions();
-    let mut buffer: image::RgbImage = ImageBuffer::new(width, height);
+    let mut buffer = new_buffer(&img);
 
     for pixel in img.pixels() {
-        match pixel {
-            (x, y, pixel) => buffer.put_pixel(x, y, Rgb{data: [
-                apply_contrast(*pixel.data.get(0).unwrap(), factor),
-                apply_contrast(*pixel.data.get(1).unwrap(), factor),
-                apply_contrast(*pixel.data.get(2).unwrap(), factor)
-            ]})
-        }
+        let (x, y, p) = pixel;
+        buffer.put_pixel(x, y, Rgb{data: [
+                apply_contrast(*p.data.get(0).unwrap(), factor),
+                apply_contrast(*p.data.get(1).unwrap(), factor),
+                apply_contrast(*p.data.get(2).unwrap(), factor)
+        ]});
     }
 
     buffer
@@ -30,20 +28,15 @@ fn apply_contrast(value: u8, factor: f32) -> u8 {
 
 
 pub fn brighten(img: &DynamicImage, steps: u8) -> image::RgbImage {
-    let (width, height) = img.dimensions();
+    let mut buffer = new_buffer(&img);
 
-    let mut buffer: image::RgbImage = ImageBuffer::new(width, height);
-
-    for x in 0..width {
-        for y in 0..height {
-            let pixel = img.get_pixel(x, y);
-
-            buffer.put_pixel(x, y, Rgb {data: [
-                brighten_channel(*pixel.data.get(0).unwrap(), steps),
-                brighten_channel(*pixel.data.get(1).unwrap(), steps),
-                brighten_channel(*pixel.data.get(2).unwrap(), steps)
-            ]});
-        }
+    for pixel in img.pixels() {
+        let (x, y, p) = pixel;
+        buffer.put_pixel(x, y, Rgb{data: [
+            brighten_channel(*p.data.get(0).unwrap(), steps),
+            brighten_channel(*p.data.get(1).unwrap(), steps),
+            brighten_channel(*p.data.get(2).unwrap(), steps)
+        ]});
     }
 
     buffer
@@ -67,13 +60,12 @@ pub fn invert(img: &DynamicImage) -> image::RgbImage {
     let mut buffer = new_buffer(&img);
 
     for pixel in img.pixels() {
-        match pixel {
-            (x, y, pixel) => buffer.put_pixel(x, y, Rgb {data: [
-                invert_channel(*pixel.data.get(0).unwrap()),
-                invert_channel(*pixel.data.get(1).unwrap()),
-                invert_channel(*pixel.data.get(2).unwrap())
-            ]})
-        }
+        let (x, y, p) = pixel;
+        buffer.put_pixel(x, y, Rgb {data: [
+            invert_channel(*p.data.get(0).unwrap()),
+            invert_channel(*p.data.get(1).unwrap()),
+            invert_channel(*p.data.get(2).unwrap())
+        ]});
     }
 
     buffer
