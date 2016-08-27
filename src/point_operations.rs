@@ -2,6 +2,29 @@ extern crate image;
 
 use image::{GenericImage, DynamicImage, Rgb};
 
+pub fn threshold(img: &DynamicImage, point: u8) -> image::RgbImage {
+    let mut buffer = new_buffer(&img);
+
+    for pixel in img.pixels() {
+        let (x, y, p) = pixel;
+
+        let sum = p.data.iter().fold(0u16, |acc, &val| {
+            acc + val as u16
+        });
+
+        let new_val = match sum > (point as u16 * 3) {
+            true  => 255,
+            false => 0
+        };
+
+
+        buffer.put_pixel(x, y, Rgb{data: [new_val, new_val, new_val]});
+    }
+
+    buffer
+}
+
+
 pub fn contrast(img: &DynamicImage, factor: f32) -> image::RgbImage {
     let mut buffer = new_buffer(&img);
 
